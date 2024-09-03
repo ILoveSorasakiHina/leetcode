@@ -1,2 +1,83 @@
 [Path with Maximum Probability](https://leetcode.com/problems/path-with-maximum-probability)
 
+## 1514. Path with Maximum Probability
+
+### 題目描述
+
+給定一個無向圖，圖上有權值，權值代表成功走到該點的機率。給定起點與終點，請回傳走到終點的最大機率。
+
+### 範例
+
+**Example 1:**
+
+Input: n = 3, edges = [[0,1],[1,2],[0,2]], succProb = [0.5,0.5,0.2], start = 0, end = 2 Output: 0.25000 Explanation: There are two paths from start to end, one having a probability of success = 0.2 and the other has 0.5 * 0.5 = 0.25.
+
+
+**Example 2:**
+
+Input: n = 3, edges = [[0,1],[1,2],[0,2]], succProb = [0.5,0.5,0.3], start = 0, end = 2 Output: 0.30000
+
+
+**Example 3:**
+
+Input: n = 3, edges = [[0,1]], succProb = [0.5], start = 0, end = 2 Output: 0.00000 Explanation: There is no path between 0 and 2.
+
+
+### Constraints:
+
+- 2 <= n <= 10^4
+- 0 <= start, end < n
+- start != end
+- 0 <= a, b < n
+- a != b
+- 0 <= succProb.length == edges.length <= 2*10^4
+- 0 <= succProb[i] <= 1
+- There is at most one edge between every two nodes.
+
+### 思路
+
+1. 首先，將 `edges` 與對應的 `succProb` 轉換成無向圖。
+2. 開一個長度為 `n` 的列表 `result`，用來紀錄最大機率。
+3. 開一個 heap，並將 `start` 節點與其初始機率放入。
+   - 由於這裡要求最大機率，我們需要使用大堆頂，因此在 heap 中存放的值需取負數。
+4. 開始一個迴圈，直到 heap 為空：
+   - 從 heap 中彈出節點 `node` 與其當前機率 `curr_prob`。
+   - 如果 `node` 等於目標節點 `end`，則返回 `curr_prob`。
+   - 遍歷 `graph[node]`，計算通過 `node` 到達相鄰節點 `neighbor` 的新機率 `new_prob`。
+   - 如果 `new_prob` 大於 `result[neighbor]` 中紀錄的機率，更新 `result[neighbor]` 並將新機率與 `neighbor` 放入 heap 中。
+
+### Python 程式碼
+
+```python
+import heapq
+from collections import defaultdict
+from typing import List
+
+class Solution:
+    def maxProbability(self, n: int, edges: List[List[int]], succProb: List[float], start_node: int, end_node: int) -> float:
+        graph = defaultdict(list)
+
+        # 構建圖
+        for i in range(len(edges)):
+            graph[edges[i][0]].append((edges[i][1], succProb[i]))
+            graph[edges[i][1]].append((edges[i][0], succProb[i]))
+
+        # 初始化結果與優先佇列
+        result = [0] * n
+        result[start_node] = 1
+        pq = [(-1, start_node)]
+
+        while pq:
+            curr_prob, node = heapq.heappop(pq)
+            curr_prob = -curr_prob
+
+            if node == end_node:
+                return curr_prob
+
+            for neighbor, prob in graph[node]:                           
+                new_prob = curr_prob * prob
+                if new_prob > result[neighbor]:
+                    result[neighbor] = new_prob
+                    heapq.heappush(pq, (-new_prob, neighbor))
+
+        return 0.0
