@@ -25,7 +25,3 @@ Dijkstra's Algorithm is used to find the shortest path from a starting point to 
    
    3. Calculate the new distance from the start node to `neighbor`. If this new distance is smaller than `result[neighbor]`, update `result[neighbor]` and insert the new shortest distance and `neighbor` into the priority queue.
 
-### Notes
-
-- Dijkstra's Algorithm is only applicable to graphs with non-negative edge weights.
-- If the graph contains negative edge weights, use the Bellman-Ford Algorithm.
